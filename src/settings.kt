@@ -1,3 +1,3 @@
-fun configureSettings(settings: Settings) {
-    settings.include(":app", ":core")
+fun Settings.configureSettings() {
+    include(":app", ":core")
 }
