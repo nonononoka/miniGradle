@@ -32,3 +32,5 @@ bin/
 .DS_Store
 
 .idea
+
+src/*.jar
