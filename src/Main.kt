@@ -1,5 +1,4 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+
 
 class Task(val name: String, val project: Project, val action: () -> Unit) {
     val depends = mutableSetOf<Task>()
@@ -21,6 +20,11 @@ class Task(val name: String, val project: Project, val action: () -> Unit) {
 
 class Project(val name: String, val settings: Settings) {
     val tasks = mutableMapOf<String, Task>()
+
+    fun plugins(block: PluginContainer.()-> Unit){
+        val container = PluginContainer(this)
+        container.block()
+    }
 
     fun registerTask(name: String, action: () -> Unit): Task {
         val task = tasks.getOrPut(name) { Task(name, this, action) }
@@ -85,22 +89,22 @@ class GradleRunner {
     }
 }
 
-
-fun mySettings(block: Settings.() -> Unit): Settings {
-    val s = Settings()
-    s.block()
-    return s
-}
-
 fun main() {
     val settingKts: Settings.() -> Unit = {
         include(":core", ":app")
     }
 
     val coreBuildKts: Project.() -> Unit = {
-        registerTask("core_task") {
+        // これでJava pluginのtaskをprojectに登録
+        plugins{
+            id("java")
+        }
+
+        val coreTask = registerTask("core_task") {
             println("    > [Action] core:core_task is running!")
         }
+
+        coreTask.dependsOn(tasks["build"]!!)
     }
 
     val appBuildKts: Project.() -> Unit = {
