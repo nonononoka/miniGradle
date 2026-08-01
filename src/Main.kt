@@ -1,4 +1,4 @@
-
+class ProjectDescriptor(var name: String)
 
 class Task(val name: String, val project: Project, val action: () -> Unit) {
     val depends = mutableSetOf<Task>()
@@ -38,7 +38,15 @@ class Project(val name: String, val settings: Settings) {
 }
 
 class Settings {
+    val rootProject = ProjectDescriptor("default-root-project")
     val projects = mutableMapOf<String, Project>()
+    var isBuildCacheEnabled = false
+    var buildCacheDirectory: String? = null
+
+    fun plugins(block: SettingsPluginContainer.()->Unit){
+        val container = SettingsPluginContainer(this)
+        container.block()
+    }
 
     fun include(vararg projectNames: String) {
         for (projectName in projectNames) {
@@ -61,7 +69,6 @@ class GradleRunner {
         println("=== [Phase 1] Initialization ===")
         settings = Settings()
         settings.settingsScript()
-        println("  Included projects: ${settings.projects.keys.joinToString()}")
     }
 
     // 2. build.gradle.ktsに相当するスクリプトを評価する
@@ -91,6 +98,10 @@ class GradleRunner {
 
 fun main() {
     val settingKts: Settings.() -> Unit = {
+        rootProject.name = "my-kotlin-project"
+        plugins{
+            id("build-cache")
+        }
         include(":core", ":app")
     }
 
@@ -115,7 +126,11 @@ fun main() {
     }
 
     val runner = GradleRunner()
-    runner.initialize { settingKts() }
+    runner.initialize {
+        settingKts()
+        println("  Root Project Name: ${this.rootProject.name}")
+        println("  Included projects: ${this.projects.keys.joinToString()}")
+    }
 
     val scripts = mapOf(
         "core" to coreBuildKts,
