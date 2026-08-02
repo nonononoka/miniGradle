@@ -14,6 +14,16 @@ class JavaPlugin: Plugin<Project>{
     }
 }
 
+class KotlinJVMPlugin: Plugin<Project>{
+    override fun apply(target :Project){
+        println("  [Plugin Action] KotlinJvmPlugin: ${target.name} に Kotlin のサポートを追加します")
+
+        target.registerTask("compileKotlin") {
+            println("    > [Action] ${target.name}:compileKotlin is compiling Kotlin code...")
+        }
+    }
+}
+
 class BuildCachePlugin: Plugin<Settings>{
     override fun apply(target :Settings) {
         target.isBuildCacheEnabled = true
@@ -25,6 +35,7 @@ class BuildCachePlugin: Plugin<Settings>{
 object PluginRegistry{
     private val projectPlugins = mapOf<String, Plugin<Project>>(
         "java" to JavaPlugin(),
+        "org.jetbrains.kotlin.jvm" to KotlinJVMPlugin()
     )
 
     private val settingsPlugins = mapOf<String, Plugin<Settings>>(
@@ -42,8 +53,14 @@ object PluginRegistry{
 
 class PluginContainer(private val target: Project){
     fun id(pluginId: String){
+        println("  [Plugin] Applying plugin: $pluginId to ${target.name}")
         val plugin = PluginRegistry.getProjectPlugin(pluginId)
         plugin.apply(target)
+    }
+
+    fun alias(provider: PluginProvider){
+        // providerからIDを取り出して結局はid()を呼ぶ
+        id(provider.pluginId)
     }
 }
 

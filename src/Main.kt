@@ -109,6 +109,7 @@ fun main() {
         // これでJava pluginのtaskをprojectに登録
         plugins{
             id("java")
+            alias(lib.plugins.kotlin.jvm)
         }
 
         val coreTask = registerTask("core_task") {
