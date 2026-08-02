@@ -110,6 +110,7 @@ fun main() {
         plugins{
             id("java")
             alias(lib.plugins.kotlin.jvm)
+            application
         }
 
         val coreTask = registerTask("core_task") {
