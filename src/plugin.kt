@@ -16,7 +16,7 @@ class JavaPlugin: Plugin<Project>{
 
 class KotlinJVMPlugin: Plugin<Project>{
     override fun apply(target :Project){
-        println("  [Plugin Action] KotlinJvmPlugin: ${target.name} に Kotlin のサポートを追加します")
+        println("  [Plugin] KotlinJvmPlugin: ${target.name} に Kotlin のサポートを追加します")
 
         val compileKotlinTask = target.registerTask("compileKotlin") {
             println("    > [Action] ${target.name}:compileKotlin is compiling Kotlin code...")
@@ -30,7 +30,7 @@ class KotlinJVMPlugin: Plugin<Project>{
 
 class ApplicationPlugin: Plugin<Project>{
     override fun apply(target :Project){
-        println("  [Plugin Action] ApplicationPlugin: ${target.name} に CLIアプリケーションのサポートを追加します")
+        println("  [Plugin] ApplicationPlugin: ${target.name} に CLIアプリケーションのサポートを追加します")
 
         target.registerTask("run"){
             println("    > [Action] ${target.name}:run is executing the application...")

@@ -20,10 +20,16 @@ class Task(val name: String, val project: Project, val action: () -> Unit) {
 
 class Project(val name: String, val settings: Settings) {
     val tasks = mutableMapOf<String, Task>()
+    val repositoryHandler = RepositoryHandler()
+    val dependencyHandler = DependencyHandler()
 
     fun plugins(block: PluginContainer.()-> Unit){
         val container = PluginContainer(this)
         container.block()
+    }
+
+    fun repositories(block: RepositoryHandler.()-> Unit){
+        repositoryHandler.block()
     }
 
     fun registerTask(name: String, action: () -> Unit): Task {
@@ -34,6 +40,10 @@ class Project(val name: String, val settings: Settings) {
     fun project(path: String): Project {
         val cleanPath = path.removePrefix(":")
         return settings.projects[cleanPath] ?: throw IllegalArgumentException("Project '\$path' not found")
+    }
+
+    fun dependencies(block: DependencyHandler.()-> Unit){
+        dependencyHandler.block()
     }
 }
 
@@ -111,6 +121,14 @@ fun main() {
             id("java")
             alias(lib.plugins.kotlin.jvm)
             application
+        }
+
+        repositories{
+            mavenCentral()
+        }
+
+        dependencies {
+            implementation("org.jetbrains.kotlin:kotlin")
         }
 
         val coreTask = registerTask("core_task") {
